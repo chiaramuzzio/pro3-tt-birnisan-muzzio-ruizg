@@ -5,7 +5,7 @@ export default class PostForm extends Component {
     constructor(props){
         super(props)
         this.state = {
-            comment: ""
+            posteo: ""
         }
     }
     
@@ -14,12 +14,12 @@ export default class PostForm extends Component {
             <View style={styles.container}>
                 <TextInput style={styles.fieldinput}
                 keyboardType="default"
-                placeholder="comment"
-                onChangeText={ text => this.setState({comment: text})}
-                value={this.state.comment}
+                placeholder="What is happening?!"
+                onChangeText={ text => this.setState({posteo: text})}
+                value={this.state.posteo}
                 />
                 <TouchableOpacity onPress={() => console.log(this.state)} style={styles.fieldbutton}>
-                    <Text style={styles.textbutton}>Comentar</Text>
+                    <Text style={styles.textbutton}>Post</Text>
                 </TouchableOpacity>
             </View>
         )

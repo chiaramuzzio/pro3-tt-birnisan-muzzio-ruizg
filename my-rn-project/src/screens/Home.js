@@ -1,7 +1,5 @@
 import { StyleSheet, Text } from "react-native";
 import { View } from "react-native";
-import HomeMenu from "../components/HomeMenu";
-import PostForm from "../components/PostForm";
 import { auth } from "../firebase/config"
 import { TouchableOpacity } from "react-native";
 
@@ -21,7 +19,6 @@ function Home (props){
     return(
         <View style={styles.container}>
             <Text style={styles.texto}>Bienvenido {auth.currentUser.email}</Text>
-            <PostForm/>
             <TouchableOpacity style={styles.fieldbutton} onPress={() => handleSignOut()}>
                 <Text style={styles.textbutton}>Cerrar Sesión</Text>
             </TouchableOpacity>
