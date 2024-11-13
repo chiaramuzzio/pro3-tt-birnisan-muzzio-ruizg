@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { TouchableOpacity, Text, View, TextInput, StyleSheet } from "react-native";
-import { auth, db } from "../firebase/config"; // Asegúrate de que firestore esté configurado en config.js
+import { auth, db } from "../firebase/config";
 
 class Register extends Component {
     constructor(props) {
@@ -13,6 +13,14 @@ class Register extends Component {
             error: "",
             createdAt: ""
         };
+    }
+
+    componentDidMount() {
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                this.props.navigation.navigate("HomeMenu");
+            }
+        });
     }
 
     handleSubmit = () => {

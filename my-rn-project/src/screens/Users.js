@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text } from 'react-native';
+import { auth } from "../firebase/config";
 
 class Users extends Component {
   constructor(props) {
@@ -7,6 +8,14 @@ class Users extends Component {
     this.state = {
     };
   }
+
+  componentDidMount() {
+    auth.onAuthStateChanged(user => {
+        if (!user) {
+            this.props.navigation.navigate("Login");
+        }
+    });
+}
 
   render() {
     return (

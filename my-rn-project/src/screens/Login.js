@@ -17,9 +17,6 @@ class Login extends Component{
             if(user){
                 this.props.navigation.navigate("HomeMenu")
             }
-            else{
-                console.log("No hay usuario")
-            }
         })
     }
 

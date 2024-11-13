@@ -1,66 +1,107 @@
-import React, { Component } from 'react'
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native'
+import React, { Component } from 'react';
+import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { auth, db } from "../firebase/config";
 
-export default class PostForm extends Component {
-    constructor(props){
-        super(props)
+class PostForm extends Component {
+    constructor(props) {
+        super(props);
         this.state = {
-            posteo: ""
-        }
+            tweet: "",
+            user: ""
+        };
     }
-    
-    render(){
-        return(
+
+    componentDidMount() {
+        const user = auth.currentUser;
+
+        db.collection("users").doc(user.uid).get()
+        .then(doc => {
+            if (doc.exists) {
+                const username = doc.data().user;
+                this.setState({ user: username });
+                console.log("Usuario: ", username);
+            }
+        })
+    }
+
+    handleSubmit() {
+        const user = auth.currentUser;
+        const email = user.email;
+
+        db.collection("posts").add({
+            tweet: this.state.tweet,
+            email: email,
+            user: this.state.user,
+            likes: [],
+            createdAt: Date.now(),
+            userId: user.uid
+        })
+        .then(() => {
+            console.log("Posteado");
+            this.setState({ tweet: "" }); 
+        })
+    }
+
+    render() {
+        return (
             <View style={styles.container}>
-                <TextInput style={styles.fieldinput}
-                keyboardType="default"
-                placeholder="What is happening?!"
-                onChangeText={ text => this.setState({posteo: text})}
-                value={this.state.posteo}
+                <View style={styles.header}>
+                    <Text style={styles.title}>Compose new Tweet</Text>
+                </View>
+                <TextInput
+                    style={styles.fieldinput}
+                    keyboardType="default"
+                    placeholder="What's happening?"
+                    onChangeText={text => this.setState({ tweet: text })}
+                    value={this.state.tweet}
+                    multiline
                 />
-                <TouchableOpacity onPress={() => console.log(this.state)} style={styles.fieldbutton}>
-                    <Text style={styles.textbutton}>Post</Text>
+                <TouchableOpacity onPress={() => this.handleSubmit()} style={styles.fieldbutton}>
+                    <Text style={styles.textbutton}>Tweet</Text>
                 </TouchableOpacity>
             </View>
-        )
+        );
     }
 }
 
-const styles = StyleSheet.create({ 
+const styles = StyleSheet.create({
     container: {
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 10
+        flex: 1,
+        padding: 15,
+        backgroundColor: '#fff',
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: 'bold',
     },
     fieldinput: {
-        height: 20,
-        paddingVertical: 15,
-        paddingHorizontal: 10,
+        height: 100,
+        padding: 10,
         borderWidth: 1,
-        borderColor: "#ccc",
-        borderStyle: "solid",
-        borderRadius: 6,
-        marginVertical: 10,
-        width: "50%"
+        borderColor: '#ccc',
+        borderRadius: 10,
+        marginBottom: 10,
+        fontSize: 16,
+        textAlignVertical: 'top',
     },
     fieldbutton: {
-        backgroundColor: "#28a745",
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 4,
-        borderWidth: 1,
-        borderStyle: "solid",
-        borderColor: "#28a745",
-        marginBottom: 10,
-        width: "max-width",
-        // textAlign: "center",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
+        backgroundColor: '#1DA1F2',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+        alignSelf: 'flex-end',
     },
     textbutton: {
-        color: "#fff"
-    }
-})
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+});
+
+export default PostForm;
