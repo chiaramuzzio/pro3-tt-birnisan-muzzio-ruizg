@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { db, auth } from "../firebase/config";
 import firebase from 'firebase/app';
 
@@ -10,12 +10,13 @@ class PostCard extends Component {
             post: this.props.post,
             liked: false,
             likeCount: this.props.post.data.likes.length,
+            condicion: this.props.condicion
         };
     }
 
     componentDidMount() {
         this.setState({ liked: this.state.post.data.likes.includes(auth.currentUser.email) });
-        console.log(this.state.post)
+        console.log(this.state.post);
     }
 
     like() {
@@ -51,7 +52,7 @@ class PostCard extends Component {
     handleDelete = (postId) => {
         db.collection("posts").doc(postId).delete()
             .then(() => {
-                console.log("Post eliminado!");                
+                console.log("Post eliminado!");
             })
             .catch(error => {
                 console.error("Error al eliminar el post: ", error);
@@ -59,17 +60,12 @@ class PostCard extends Component {
     }
 
     render() {
-        const { post, liked, likeCount } = this.state;
+        const { post, liked, likeCount, condicion } = this.state;
         const createdAt = new Date(post.data.createdAt).toLocaleDateString();
 
         return (
             <View style={styles.card}>
                 <View style={styles.header}>
-
-                    <TouchableOpacity style={styles.eliminarButton} title="Eliminar" color="red" onPress={() => this.handleDelete(post.id)}>
-                        <Text>Eliminar</Text>
-                    </TouchableOpacity>
-
                     <Text style={styles.username}>{post.data.user}</Text>
                     <Text style={styles.date}>{createdAt}</Text>
                 </View>
@@ -80,6 +76,11 @@ class PostCard extends Component {
                         <Text style={styles.likeButtonText}>{liked ? "Unlike" : "Like"}</Text>
                     </TouchableOpacity>
                 </View>
+                {condicion && (
+                    <TouchableOpacity style={styles.eliminarButton} onPress={() => this.handleDelete(post.id)}>
+                        <Text style={styles.eliminarButtonText}>Eliminar</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         );
     }
@@ -112,17 +113,21 @@ const styles = StyleSheet.create({
     },
     date: {
         color: '#657786',
-        fontSize: 12
+        fontSize: 14
     },
     tweet: {
         fontSize: 16,
-        marginBottom: 10
+        marginBottom: 10,
+        lineHeight: 24
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginTop: 10
+        marginTop: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#e1e8ed',
+        paddingTop: 10
     },
     likes: {
         color: '#657786',
@@ -139,7 +144,16 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     eliminarButton: {
-        borderRadius: 20
+        backgroundColor: '#ff4d4d',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 20,
+        marginTop: 10,
+        alignSelf: 'flex-end'
+    },
+    eliminarButtonText: {
+        color: '#fff',
+        fontSize: 14
     }
 });
 

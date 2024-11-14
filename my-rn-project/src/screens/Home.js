@@ -71,7 +71,7 @@ class Home extends Component {
                     <FlatList
                         data={this.state.posts}
                         keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => <PostCard post={item} />}
+                        renderItem={({ item }) => <PostCard condicion={false} post={item} />}
                     />
                 </View>
             );

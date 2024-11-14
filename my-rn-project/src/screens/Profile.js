@@ -18,33 +18,41 @@ class Profile extends Component {
         auth.onAuthStateChanged(user => {
             if (!user) {
                 this.props.navigation.navigate("Login");
-            }
+            } 
             else {
                 db.collection("users")
-                    .where("email", "==", auth.currentUser.email)
-                    .onSnapshot(snapshot => {
-                        if (!snapshot.empty) {
-                            const doc = snapshot.docs[0];
-                            this.setState({ user: doc.data().user });   
-                        }
-                    });
+                .where("email", "==", auth.currentUser.email)
+                .onSnapshot(snapshot => {
+                    if (!snapshot.empty) {
+                        const doc = snapshot.docs[0];
+                        this.setState({ user: doc.data().user });
+                    }
+                });
+
+                this.fetchPosts();
             }
         });
-
-        db.collection("posts").where('email', '==', auth.currentUser.email).orderBy('createdAt', 'desc').onSnapshot(
-            querySnapshot => {
-                let posts = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    data: doc.data()
-                }));
-                this.setState({ posts: posts, loading: false });
-                console.log("Posts: ", posts);
-            },
-            error => {
-                // console.error("Error fetching posts: ", error);
-            }
-        );
     }
+
+    componentDidUpdate() {
+        this.fetchPosts();
+    }
+
+    fetchPosts = () => {
+        db.collection("posts")
+        .where('email', '==', auth.currentUser.email)
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(querySnapshot => {
+            let posts = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                data: doc.data()
+            }));
+            this.setState({ posts: posts, loading: false });
+            console.log("Posts: ", posts);
+        }, error => {
+            console.error("Error fetching posts: ", error);
+        });
+    }    
 
     handleSignOut = () => {
         auth.signOut()
@@ -57,9 +65,8 @@ class Profile extends Component {
             });
     }
 
-
     render() {
-        if(this.state.loading) {
+        if (this.state.loading) {
             return (
                 <View style={styles.container}>
                     <ActivityIndicator size='large' color='green' />
@@ -73,8 +80,7 @@ class Profile extends Component {
                     <Text>No hay posts</Text>
                 </View>
             );
-        }
-        else{
+        } else {
             return (
                 <View style={styles.container}>
                     <Text style={styles.texto}>Mi Perfil</Text>
@@ -83,7 +89,7 @@ class Profile extends Component {
                     <FlatList
                         data={this.state.posts}
                         keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => <PostCard post={item} />}
+                        renderItem={({ item }) => <PostCard post={item} condicion={true}/>}
                     />
                     <Text>Cantidad de posteos: {this.state.posts.length} </Text>
                     <TouchableOpacity style={styles.fieldbutton} onPress={() => this.handleSignOut()}>
@@ -93,7 +99,6 @@ class Profile extends Component {
             );
         }
     }
-    
 }
 
 const styles = StyleSheet.create({
