@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { auth, db } from "../firebase/config";
-import PostGrid from '../components/PostGrid';
+import PostCard from '../components/PostCard';
 
 class Home extends Component {
     constructor(props) {
         super(props);
         this.state = {
             email: auth.currentUser ? auth.currentUser.email : "",
-            user: "User"
+            user: "User",
+            posts: [],
+            loading: true
         };
     }
 
@@ -28,16 +30,54 @@ class Home extends Component {
                     });
             }
         });
-    }
 
-    render() {
-        return (
-            <View style={styles.container}>
-                <Text style={styles.texto}>Bienvenido de nuevo, {this.state.user}</Text>
-                <PostGrid/>
-            </View>
+        db.collection("posts").orderBy('createdAt', 'desc').onSnapshot(
+            querySnapshot => {
+                let posts = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    data: doc.data()
+                }));
+                this.setState({ posts: posts, loading: false });
+                console.log("Posts: ", posts);
+            },
+            error => {
+                console.error("Error fetching posts: ", error);
+            }
         );
     }
+
+
+    render() {
+        if(this.state.loading) {
+            return (
+                <View style={styles.container}>
+                    <ActivityIndicator size='large' color='green' />
+                </View>
+            );
+        }
+
+        if (this.state.posts.length === 0) {
+            return (
+                <View style={styles.container}>
+                    <Text>No hay posts</Text>
+                </View>
+            );
+        }
+        else{
+            return (
+                <View style={styles.container}>
+                    <Text style={styles.texto}>Bienvenido de nuevo, {this.state.user}</Text>
+
+                    <FlatList
+                        data={this.state.posts}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => <PostCard post={item} />}
+                    />
+                </View>
+            );
+        }
+    }
+    
 }
 
 const styles = StyleSheet.create({

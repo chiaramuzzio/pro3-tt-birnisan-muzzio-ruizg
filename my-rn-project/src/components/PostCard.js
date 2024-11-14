@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { db, auth } from "../firebase/config";
 import firebase from 'firebase/app';
 
@@ -48,6 +48,16 @@ class PostCard extends Component {
             });
     }
 
+    handleDelete = (postId) => {
+        db.collection("posts").doc(postId).delete()
+            .then(() => {
+                console.log("Post eliminado!");                
+            })
+            .catch(error => {
+                console.error("Error al eliminar el post: ", error);
+            });
+    }
+
     render() {
         const { post, liked, likeCount } = this.state;
         const createdAt = new Date(post.data.createdAt).toLocaleDateString();
@@ -55,6 +65,11 @@ class PostCard extends Component {
         return (
             <View style={styles.card}>
                 <View style={styles.header}>
+
+                    <TouchableOpacity style={styles.eliminarButton} title="Eliminar" color="red" onPress={() => this.handleDelete(post.id)}>
+                        <Text>Eliminar</Text>
+                    </TouchableOpacity>
+
                     <Text style={styles.username}>{post.data.user}</Text>
                     <Text style={styles.date}>{createdAt}</Text>
                 </View>
@@ -122,6 +137,9 @@ const styles = StyleSheet.create({
     likeButtonText: {
         color: '#fff',
         fontSize: 14
+    },
+    eliminarButton: {
+        borderRadius: 20
     }
 });
 
