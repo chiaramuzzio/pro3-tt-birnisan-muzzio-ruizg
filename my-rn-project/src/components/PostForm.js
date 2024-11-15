@@ -26,20 +26,23 @@ class PostForm extends Component {
 
     handleSubmit() {
         const user = auth.currentUser;
-        const email = user.email;
-
-        db.collection("posts").add({
-            tweet: this.state.tweet,
-            email: email,
-            user: this.state.user,
-            likes: [],
-            createdAt: Date.now(),
-            userId: user.uid
-        })
-        .then(() => {
-            console.log("Posteado");
-            this.setState({ tweet: "" }); 
-        })
+        if (user) {
+            db.collection("posts").add({
+                tweet: this.state.tweet,
+                email: user.email,
+                user: this.state.user,
+                likes: [],
+                createdAt: Date.now(),
+                userId: user.uid
+            })
+            .then(() => {
+                console.log("Posteado");
+                this.setState({ tweet: "" }); 
+            })
+            .catch(error => {
+                console.error("Error al postear: ", error);
+            });
+        }
     }
 
     render() {
@@ -88,7 +91,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: 10,
         fontSize: 16,
-        textAlignVertical: 'top',
+        textAlignVertical: 'top', // Para que el texto comience desde la parte superior
     },
     fieldbutton: {
         backgroundColor: '#1DA1F2',

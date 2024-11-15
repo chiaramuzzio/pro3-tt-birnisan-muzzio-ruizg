@@ -2,21 +2,18 @@ import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { db, auth } from "../firebase/config";
 import firebase from 'firebase/app';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Feather from '@expo/vector-icons/Feather';
 
 class PostCard extends Component {
     constructor(props) {
         super(props);
         this.state = {
             post: this.props.post,
-            liked: false,
+            liked: this.props.post.data.likes.includes(auth.currentUser.email),
             likeCount: this.props.post.data.likes.length,
             condicion: this.props.condicion
         };
-    }
-
-    componentDidMount() {
-        this.setState({ liked: this.state.post.data.likes.includes(auth.currentUser.email) });
-        console.log(this.state.post);
     }
 
     like() {
@@ -72,15 +69,17 @@ class PostCard extends Component {
                 <Text style={styles.tweet}>{post.data.tweet}</Text>
                 <View style={styles.footer}>
                     <Text style={styles.likes}>Liked by {likeCount}</Text>
-                    <TouchableOpacity onPress={() => (liked ? this.unlike() : this.like())} style={styles.likeButton}>
-                        <Text style={styles.likeButtonText}>{liked ? "Unlike" : "Like"}</Text>
-                    </TouchableOpacity>
+                    <View style={styles.iconContainer}>
+                        <TouchableOpacity onPress={() => (liked ? this.unlike() : this.like())}>
+                            <AntDesign name={liked ? "heart" : "hearto"} size={24} color="red" style={styles.icon} />
+                        </TouchableOpacity>
+                        {condicion && (
+                            <TouchableOpacity onPress={() => this.handleDelete(post.id)}>
+                                <Feather name="trash" size={24} color="black" style={styles.icon} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
-                {condicion && (
-                    <TouchableOpacity style={styles.eliminarButton} onPress={() => this.handleDelete(post.id)}>
-                        <Text style={styles.eliminarButtonText}>Eliminar</Text>
-                    </TouchableOpacity>
-                )}
             </View>
         );
     }
@@ -133,27 +132,12 @@ const styles = StyleSheet.create({
         color: '#657786',
         fontSize: 14
     },
-    likeButton: {
-        backgroundColor: '#1DA1F2',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        borderRadius: 20
+    iconContainer: {
+        flexDirection: 'row',
+        alignItems: 'center'
     },
-    likeButtonText: {
-        color: '#fff',
-        fontSize: 14
-    },
-    eliminarButton: {
-        backgroundColor: '#ff4d4d',
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        borderRadius: 20,
-        marginTop: 10,
-        alignSelf: 'flex-end'
-    },
-    eliminarButtonText: {
-        color: '#fff',
-        fontSize: 14
+    icon: {
+        marginLeft: 10
     }
 });
 

@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { auth, db } from "../firebase/config";
+import Feather from '@expo/vector-icons/Feather';
 import PostCard from '../components/PostCard';
+
+// VER POR QUE PINGO NO SE ACTUALIZA SOLO CON POSTS NUEVOS NI CUANDO SE BORRAN EN PROFILE PERO EN HOME SI
 
 class Profile extends Component {
     constructor(props) {
@@ -18,25 +21,25 @@ class Profile extends Component {
         auth.onAuthStateChanged(user => {
             if (!user) {
                 this.props.navigation.navigate("Login");
-            } 
-            else {
+            } else {
                 db.collection("users")
-                .where("email", "==", auth.currentUser.email)
-                .onSnapshot(snapshot => {
-                    if (!snapshot.empty) {
-                        const doc = snapshot.docs[0];
-                        this.setState({ user: doc.data().user });
-                    }
-                });
+                    .where("email", "==", auth.currentUser.email)
+                    .onSnapshot(snapshot => {
+                        if (!snapshot.empty) {
+                            const doc = snapshot.docs[0];
+                            this.setState({ user: doc.data().user });
+                        }
+                    });
 
-                this.fetchPosts();
+                    this.fetchPosts();
+ 
             }
         });
     }
 
-    componentDidUpdate() {
-        this.fetchPosts();
-    }
+    // componentDidUpdate(){
+    //     this.fetchPosts()
+    // }
 
     fetchPosts = () => {
         db.collection("posts")
@@ -48,16 +51,16 @@ class Profile extends Component {
                 data: doc.data()
             }));
             this.setState({ posts: posts, loading: false });
-            console.log("Posts: ", posts);
         }, error => {
-            console.error("Error fetching posts: ", error);
+            console.error("Error: ", error);
+            this.setState({ loading: false });
         });
-    }    
+    }
 
     handleSignOut = () => {
         auth.signOut()
-            .then(response => {
-                console.log(response);
+            .then(() => {
+                console.log("Cerro sesion exitosamente");
                 this.props.navigation.navigate("Login");
             })
             .catch(error => {
@@ -69,67 +72,81 @@ class Profile extends Component {
         if (this.state.loading) {
             return (
                 <View style={styles.container}>
-                    <ActivityIndicator size='large' color='green' />
+                    <ActivityIndicator size='large' color='#1DA1F2' />
                 </View>
             );
         }
 
-        if (this.state.posts.length === 0) {
-            return (
-                <View style={styles.container}>
-                    <Text>No hay posts</Text>
+        return (
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.username}>{this.state.user}</Text>
+                    <TouchableOpacity onPress={() => this.handleSignOut()}>
+                        <Feather name="log-out" size={24} color="black" />
+                    </TouchableOpacity>
                 </View>
-            );
-        } else {
-            return (
-                <View style={styles.container}>
-                    <Text style={styles.texto}>Mi Perfil</Text>
-                    <Text>Nombre de usuario: {this.state.user} </Text>
-                    <Text>Email de usuario: {this.state.email} </Text>
+                <Text style={styles.email}>{this.state.email}</Text>
+                <Text style={styles.postCount}>Cantidad de posteos: {this.state.posts.length}</Text>
+                {this.state.posts.length === 0 ? (
+                    <View style={styles.noPostsContainer}>
+                        <Text>No hay posts</Text>
+                    </View>
+                ) : (
                     <FlatList
                         data={this.state.posts}
                         keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => <PostCard post={item} condicion={true}/>}
+                        renderItem={({ item }) => <PostCard post={item} condicion={true} />}
                     />
-                    <Text>Cantidad de posteos: {this.state.posts.length} </Text>
-                    <TouchableOpacity style={styles.fieldbutton} onPress={() => this.handleSignOut()}>
-                        <Text style={styles.textbutton}>Cerrar Sesión</Text>
-                    </TouchableOpacity>
-                </View>
-            );
-        }
+                )}
+            </View>
+        );
     }
 }
 
 const styles = StyleSheet.create({
-    texto: {
-        fontSize: 20,
-        fontWeight: "bold"
-    },
     container: {
         flex: 1,
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: '#f5f8fa',
         padding: 10
     },
-    fieldbutton: {
-        backgroundColor: "#28a745",
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 4,
-        borderWidth: 1,
-        borderStyle: "solid",
-        borderColor: "#28a745",
-        marginBottom: 10,
-        width: "max-width",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e1e8ed',
+        marginBottom: 10
     },
-    textbutton: {
-        color: "#fff"
+    username: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#14171a'
+    },
+    email: {
+        fontSize: 16,
+        color: '#657786',
+        marginBottom: 10
+    },
+    postCount: {
+        fontSize: 16,
+        color: '#657786',
+        marginBottom: 10
+    },
+    logoutButton: {
+        backgroundColor: '#1DA1F2',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 20
+    },
+    logoutButtonText: {
+        color: '#fff',
+        fontSize: 14
+    },
+    noPostsContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     }
 });
 

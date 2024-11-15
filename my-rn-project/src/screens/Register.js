@@ -18,7 +18,7 @@ class Register extends Component {
     componentDidMount() {
         auth.onAuthStateChanged(user => {
             if (user) {
-                this.props.navigation.navigate("HomeMenu");
+                this.props.navigation.navigate("Login");
             }
         });
     }
@@ -45,12 +45,12 @@ class Register extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>Registro</Text>
+                <Text style={styles.title}>Registro</Text>
 
                 <TextInput
                     style={styles.fieldinput}
                     keyboardType="default"
-                    placeholder="user"
+                    placeholder="Usuario"
                     onChangeText={text => this.setState({ user: text })}
                     value={this.state.user}
                 />
@@ -58,7 +58,7 @@ class Register extends Component {
                 <TextInput
                     style={styles.fieldinput}
                     keyboardType="email-address"
-                    placeholder="email"
+                    placeholder="Email"
                     onChangeText={text => this.setState({ email: text })}
                     value={this.state.email}
                 />
@@ -66,7 +66,7 @@ class Register extends Component {
                 <TextInput
                     style={styles.fieldinput}
                     keyboardType="default"
-                    placeholder="password"
+                    placeholder="Contraseña"
                     onChangeText={text => this.setState({ password: text })}
                     value={this.state.password}
                     secureTextEntry={true}
@@ -76,8 +76,8 @@ class Register extends Component {
                     <Text style={styles.textbutton}>Registrarme</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => this.props.navigation.navigate("Login")} style={styles.fieldbutton}>
-                    <Text style={styles.textbutton}>Ya tengo cuenta</Text>
+                <TouchableOpacity onPress={() => this.props.navigation.navigate("Login")} style={styles.linkbutton}>
+                    <Text style={styles.linktext}>Ya tengo cuenta</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -87,39 +87,49 @@ class Register extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 10
+        backgroundColor: '#f5f8fa',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#14171a',
+        marginBottom: 20
     },
     fieldinput: {
-        height: 20,
-        paddingVertical: 15,
-        paddingHorizontal: 10,
+        height: 50,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
         borderWidth: 1,
-        borderColor: "#ccc",
-        borderStyle: "solid",
-        borderRadius: 6,
+        borderColor: '#ccc',
+        borderRadius: 25,
         marginVertical: 10,
-        width: "50%"
+        width: '80%',
+        backgroundColor: '#fff'
     },
     fieldbutton: {
-        backgroundColor: "#28a745",
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        borderRadius: 4,
-        borderWidth: 1,
-        borderStyle: "solid",
-        borderColor: "#28a745",
-        marginBottom: 10,
-        width: "max-width",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center"
+        backgroundColor: '#1DA1F2',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        marginVertical: 10,
+        width: '80%',
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     textbutton: {
-        color: "#fff"
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold'
+    },
+    linkbutton: {
+        marginVertical: 5
+    },
+    linktext: {
+        color: '#1DA1F2',
+        fontSize: 16
     }
 });
 
